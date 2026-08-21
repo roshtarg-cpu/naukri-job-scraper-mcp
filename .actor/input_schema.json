@@ -28,52 +28,5 @@
       "editor": "number"
     }
   },
-  "required": ["searchQuery"],
-  "prefills": [
-    {
-      "title": "Software Engineer - Bangalore",
-      "description": "Search for Software Engineer jobs in Bangalore",
-      "input": {
-        "searchQuery": "software engineer",
-        "location": "bangalore",
-        "maxResults": 50
-      }
-    },
-    {
-      "title": "Data Scientist - All India",
-      "description": "Search for Data Scientist jobs across all locations",
-      "input": {
-        "searchQuery": "data scientist",
-        "location": "",
-        "maxResults": 100
-      }
-    },
-    {
-      "title": "Product Manager - Mumbai",
-      "description": "Search for Product Manager jobs in Mumbai",
-      "input": {
-        "searchQuery": "product manager",
-        "location": "mumbai",
-        "maxResults": 50
-      }
-    },
-    {
-      "title": "DevOps Engineer - Pune",
-      "description": "Search for DevOps Engineer jobs in Pune",
-      "input": {
-        "searchQuery": "devops engineer",
-        "location": "pune",
-        "maxResults": 50
-      }
-    },
-    {
-      "title": "Full Stack Developer - Hyderabad",
-      "description": "Search for Full Stack Developer jobs in Hyderabad",
-      "input": {
-        "searchQuery": "full stack developer",
-        "location": "hyderabad",
-        "maxResults": 75
-      }
-    }
-  ]
+  "required": ["searchQuery"]
 }
