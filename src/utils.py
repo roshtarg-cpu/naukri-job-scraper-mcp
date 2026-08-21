@@ -91,14 +91,36 @@ async def fetch_jobs_page(url: str, proxy_url: Optional[str] = None, max_retries
                 # Get page content
                 content = await page.content()
                 
-                # Debug: Save first 5000 chars of HTML to check structure
+                # Take screenshot for debugging
+                try:
+                    screenshot_path = f'/tmp/naukri_debug.png'
+                    await page.screenshot(path=screenshot_path, full_page=False)
+                    print(f'📸 Screenshot saved: {screenshot_path}')
+                except Exception as e:
+                    print(f'Screenshot failed: {e}')
+                
+                # Debug: Save HTML snippet and search for content patterns
                 print(f'DEBUG: HTML length: {len(content)} chars')
-                print(f'DEBUG: First 5000 chars of HTML:')
-                print(content[:5000])
-                print('DEBUG: Searching for job card selectors...')
+                
+                # Save a larger snippet to find actual selectors
+                snippet_end = min(15000, len(content))
+                html_snippet = content[:snippet_end]
+                
+                # Look for actual class names in the HTML
+                import re
+                class_patterns = re.findall(r'class="([^"]{10,80})"', html_snippet)
+                print(f'DEBUG: Sample classes found: {class_patterns[:10]}')
+                
+                # Search for job-related content
                 print(f'DEBUG: "jobTuple" count: {content.count("jobTuple")}')
-                print(f'DEBUG: "article" count: {content.count("article")}')
+                print(f'DEBUG: "<article" count: {content.count("<article")}')
                 print(f'DEBUG: "srp-jobtuple" count: {content.count("srp-jobtuple")}')
+                print(f'DEBUG: "job-listings" in content: {("job-listings" in content)}')
+                print(f'DEBUG: "Python Developer" in content: {("Python Developer" in content)}')
+                
+                # Check if login/blocked page
+                if 'login' in content.lower() and len(content) < 300000:
+                    print('⚠ WARNING: Possible login/blocked page detected')
                 
                 await page.close()
                 
