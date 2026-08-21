@@ -1,0 +1,84 @@
+{
+  "actorSpecification": 1,
+  "name": "naukri-job-scraper-mcp",
+  "title": "Naukri.com Job Scraper",
+  "description": "Scrape job listings from Naukri.com with detailed information including title, company, salary, experience, location, skills, and job description. Built for AI agents and automation workflows.",
+  "version": "1.0.0",
+  "meta": {
+    "templateId": "python-camoufox"
+  },
+  "input": "./.actor/input_schema.json",
+  "dockerfile": "./Dockerfile",
+  "readme": "./README.md",
+  "output": {
+    "actorOutputSchemaVersion": 1,
+    "properties": {
+      "jobId": {
+        "type": "string",
+        "title": "Job ID",
+        "description": "Unique identifier for the job listing",
+        "template": "{{{jobId}}}"
+      },
+      "title": {
+        "type": "string",
+        "title": "Job Title",
+        "description": "Job title",
+        "template": "{{{title}}}"
+      },
+      "companyName": {
+        "type": "string",
+        "title": "Company Name",
+        "description": "Company name",
+        "template": "{{{companyName}}}"
+      },
+      "salary": {
+        "type": "string",
+        "title": "Salary",
+        "description": "Salary range or information",
+        "template": "{{{salary}}}"
+      },
+      "experienceMin": {
+        "type": "string",
+        "title": "Minimum Experience",
+        "description": "Minimum years of experience required",
+        "template": "{{{experienceMin}}}"
+      },
+      "experienceMax": {
+        "type": "string",
+        "title": "Maximum Experience",
+        "description": "Maximum years of experience",
+        "template": "{{{experienceMax}}}"
+      },
+      "location": {
+        "type": "string",
+        "title": "Location",
+        "description": "Job location",
+        "template": "{{{location}}}"
+      },
+      "skills": {
+        "type": "string",
+        "title": "Skills",
+        "description": "Required skills for the job",
+        "template": "{{{skills}}}"
+      },
+      "jobDescription": {
+        "type": "string",
+        "title": "Job Description",
+        "description": "Job description or summary",
+        "template": "{{{jobDescription}}}"
+      },
+      "jobUrl": {
+        "type": "string",
+        "title": "Job URL",
+        "description": "Direct URL to the job posting",
+        "template": "{{{jobUrl}}}"
+      },
+      "scrapedAt": {
+        "type": "string",
+        "title": "Scraped At",
+        "description": "ISO 8601 timestamp when the job was scraped",
+        "template": "{{{scrapedAt}}}"
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "title": "Naukri.com Job Scraper Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "searchQuery": {
+      "title": "Search Query",
+      "type": "string",
+      "description": "Job title or keywords to search for (e.g., 'software engineer', 'data scientist', 'product manager')",
+      "prefill": "software engineer",
+      "editor": "textfield"
+    },
+    "location": {
+      "title": "Location",
+      "type": "string",
+      "description": "City or location to filter jobs (e.g., 'bangalore', 'mumbai', 'delhi'). Leave empty for all locations.",
+      "prefill": "bangalore",
+      "editor": "textfield"
+    },
+    "maxResults": {
+      "title": "Maximum Results",
+      "type": "integer",
+      "description": "Maximum number of job listings to scrape",
+      "default": 50,
+      "prefill": 10,
+      "minimum": 1,
+      "maximum": 500,
+      "editor": "number"
+    }
+  },
+  "required": ["searchQuery"],
+  "prefills": [
+    {
+      "title": "Software Engineer - Bangalore",
+      "description": "Search for Software Engineer jobs in Bangalore",
+      "input": {
+        "searchQuery": "software engineer",
+        "location": "bangalore",
+        "maxResults": 50
+      }
+    },
+    {
+      "title": "Data Scientist - All India",
+      "description": "Search for Data Scientist jobs across all locations",
+      "input": {
+        "searchQuery": "data scientist",
+        "location": "",
+        "maxResults": 100
+      }
+    },
+    {
+      "title": "Product Manager - Mumbai",
+      "description": "Search for Product Manager jobs in Mumbai",
+      "input": {
+        "searchQuery": "product manager",
+        "location": "mumbai",
+        "maxResults": 50
+      }
+    },
+    {
+      "title": "DevOps Engineer - Pune",
+      "description": "Search for DevOps Engineer jobs in Pune",
+      "input": {
+        "searchQuery": "devops engineer",
+        "location": "pune",
+        "maxResults": 50
+      }
+    },
+    {
+      "title": "Full Stack Developer - Hyderabad",
+      "description": "Search for Full Stack Developer jobs in Hyderabad",
+      "input": {
+        "searchQuery": "full stack developer",
+        "location": "hyderabad",
+        "maxResults": 75
+      }
+    }
+  ]
+}
