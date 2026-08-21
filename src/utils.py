@@ -83,6 +83,15 @@ async def fetch_jobs_page(url: str, proxy_url: Optional[str] = None, max_retries
                 # Get page content
                 content = await page.content()
                 
+                # Debug: Save first 5000 chars of HTML to check structure
+                print(f'DEBUG: HTML length: {len(content)} chars')
+                print(f'DEBUG: First 5000 chars of HTML:')
+                print(content[:5000])
+                print('DEBUG: Searching for job card selectors...')
+                print(f'DEBUG: "jobTuple" count: {content.count("jobTuple")}')
+                print(f'DEBUG: "article" count: {content.count("article")}')
+                print(f'DEBUG: "srp-jobtuple" count: {content.count("srp-jobtuple")}')
+                
                 await page.close()
                 
                 return content
