@@ -116,71 +116,73 @@ def extract_job_details(job_card: Any, base_url: str) -> Optional[Dict[str, Any]
         Dictionary containing job details or None if extraction failed
     """
     try:
-        # Extract job title
-        title_elem = job_card.select_one('.title, .jobTitle, a.title, .title-ellipsis')
+        # Extract job title - try multiple selectors
+        title_elem = (
+            job_card.select_one('.title') or
+            job_card.select_one('a.title') or 
+            job_card.select_one('[class*="title"]') or
+            job_card.select_one('h2 a') or
+            job_card.select_one('a')  # First link as fallback
+        )
         title = _clean_text(title_elem.get_text()) if title_elem else None
         
         # Extract job URL
-        link_elem = job_card.select_one('a.title, a.jobTitle, .title a') or title_elem
+        link_elem = title_elem if title_elem and title_elem.name == 'a' else job_card.select_one('a')
         job_url = None
         if link_elem and link_elem.get('href'):
             href = link_elem['href']
             job_url = href if href.startswith('http') else f'{base_url}{href}'
         
+        # If we don't have at least a title, return None
+        if not title:
+            print(f'⚠ Skipping job card: no title found')
+            return None
+        
         # Extract job ID
         job_id = _extract_job_id(job_card, job_url)
         
-        # Extract company name
-        company_elem = job_card.select_one('.companyName, .comp-name, .company-name, a.comp-name')
+        # Extract company name - try multiple patterns
+        company_elem = (
+            job_card.select_one('.companyName') or
+            job_card.select_one('[class*="company"]') or
+            job_card.select_one('.comp-name')
+        )
         company_name = _clean_text(company_elem.get_text()) if company_elem else None
         
-        # Extract experience
-        exp_elem = job_card.select_one('.experience, .expwdth, .exp-wrap')
+        # Extract experience - try multiple patterns
+        exp_elem = (
+            job_card.select_one('.expwdth') or
+            job_card.select_one('[class*="exp"]') or
+            job_card.select_one('.experience')
+        )
         exp_text = _clean_text(exp_elem.get_text()) if exp_elem else None
         experience_min, experience_max = _extract_experience(exp_text)
         
         # Extract salary
-        salary_elem = job_card.select_one('.salary, .salaryInfo, .sal-wrap')
+        salary_elem = job_card.select_one('.salary, [class*="salary"], .sal-wrap')
         salary = _clean_text(salary_elem.get_text()) if salary_elem else None
-        
-        # Clean salary text
         if salary and 'not disclosed' in salary.lower():
             salary = None
         
         # Extract location
-        location_elem = job_card.select_one('.location, .locWdth, .loc-wrap, .locationInfo')
+        location_elem = (
+            job_card.select_one('.locWdth') or
+            job_card.select_one('[class*="loc"]') or
+            job_card.select_one('.location')
+        )
         location = _clean_text(location_elem.get_text()) if location_elem else None
         
         # Extract skills
-        skills_elems = job_card.select('.tag, .skill-tag, .tags span, .chip')
+        skills_elems = job_card.select('.tag, [class*="tag"], [class*="skill"], .chip')
         skills = []
-        
         if skills_elems:
             for skill_elem in skills_elems:
                 skill = _clean_text(skill_elem.get_text())
-                if skill:
+                if skill and len(skill) < 50:  # Avoid long text blocks
                     skills.append(skill)
         
-        # If no skills found with tags, try to extract from description
-        if not skills:
-            desc_elem = job_card.select_one('.jobDescription, .job-description, .desc')
-            if desc_elem:
-                desc_text = _clean_text(desc_elem.get_text())
-                # Look for common skill keywords
-                skill_keywords = [
-                    'python', 'java', 'javascript', 'react', 'angular', 'node',
-                    'aws', 'docker', 'kubernetes', 'sql', 'mongodb', 'postgresql',
-                    'machine learning', 'ai', 'data science', 'devops', 'ci/cd'
-                ]
-                
-                if desc_text:
-                    desc_lower = desc_text.lower()
-                    for keyword in skill_keywords:
-                        if keyword in desc_lower:
-                            skills.append(keyword.title())
-        
         # Extract job description
-        desc_elem = job_card.select_one('.jobDescription, .job-description, .desc, .job-desc')
+        desc_elem = job_card.select_one('.jobDescription, [class*="desc"], .job-desc')
         job_description = _clean_text(desc_elem.get_text()) if desc_elem else None
         
         # Build job data object
@@ -197,12 +199,11 @@ def extract_job_details(job_card: Any, base_url: str) -> Optional[Dict[str, Any]
             'jobUrl': job_url
         }
         
-        # Only return if we have at least title and company
-        if title and company_name:
-            return job_data
+        # Log what we extracted
+        print(f'✓ Extracted: {title} at {company_name or "?"} | {location or "?"}')
         
-        return None
+        return job_data
     
     except Exception as e:
-        print(f'Error extracting job details: {e}')
+        print(f'❌ Error extracting job details: {e}')
         return None
