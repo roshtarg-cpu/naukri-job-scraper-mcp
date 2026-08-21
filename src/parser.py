@@ -17,29 +17,28 @@ def parse_job_listings(html_content: str) -> List[Any]:
     """
     soup = BeautifulSoup(html_content, 'lxml')
     
-    # Try multiple selector strategies for Naukri.com job cards
+    # Naukri.com uses div.srp-jobtuple-wrapper for job cards (verified via debugging)
     job_cards = []
     
-    # Strategy 1: article.jobTuple (primary selector)
+    # Strategy 1: srp-jobtuple-wrapper (primary - confirmed working)
+    job_cards = soup.select('div.srp-jobtuple-wrapper')
+    if job_cards:
+        print(f'Found {len(job_cards)} jobs using div.srp-jobtuple-wrapper')
+        return job_cards
+    
+    # Strategy 2: Try article.jobTuple (legacy/fallback)
     job_cards = soup.select('article.jobTuple')
     if job_cards:
+        print(f'Found {len(job_cards)} jobs using article.jobTuple')
         return job_cards
     
-    # Strategy 2: Try article tags with class containing 'job' or 'tuple'
-    job_cards = soup.select('article[class*="job"]') or soup.select('article[class*="tuple"]')
-    if job_cards:
+    # Strategy 3: Try any div with "tuple" in class
+    job_cards = soup.select('div[class*="tuple"]')
+    if job_cards and len(job_cards) > 5:
+        print(f'Found {len(job_cards)} jobs using div[class*="tuple"]')
         return job_cards
     
-    # Strategy 3: Try div containers with job-related classes
-    job_cards = soup.select('div.srp-jobtuple-wrapper article') or soup.select('div.jobTuple')
-    if job_cards:
-        return job_cards
-    
-    # Strategy 4: Look for any article tags (last resort)
-    job_cards = soup.select('article')
-    if job_cards and len(job_cards) > 5:  # Only if we find multiple (likely job listings)
-        return job_cards
-    
+    print('⚠ No job cards found with any selector')
     return []
 
 
