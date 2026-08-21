@@ -70,8 +70,23 @@ async def fetch_jobs_page(url: str, proxy_url: Optional[str] = None, max_retries
                 # Navigate to the URL with network idle to ensure full load
                 await page.goto(url, wait_until='networkidle', timeout=60000)
                 
-                # Additional wait for dynamic content to render
-                await asyncio.sleep(5)
+                # Wait for React/Next.js to hydrate and render job listings
+                # Naukri loads job data via XHR after page load
+                await asyncio.sleep(3)
+                
+                # Wait specifically for job listings to appear
+                try:
+                    # Wait for either article tags or job-related divs
+                    await page.wait_for_selector(
+                        'article, div.styles_jlc__main__VdwtH',
+                        timeout=20000
+                    )
+                    print('✓ Job content found')
+                except Exception as e:
+                    print(f'⚠ Timeout waiting for job content: {e}')
+                    # Try scrolling to trigger lazy loading
+                    await page.evaluate('window.scrollTo(0, 1000)')
+                    await asyncio.sleep(2)
                 
                 # Get page content
                 content = await page.content()
