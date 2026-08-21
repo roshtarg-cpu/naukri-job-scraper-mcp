@@ -23,22 +23,18 @@ def parse_job_listings(html_content: str) -> List[Any]:
     # Strategy 1: srp-jobtuple-wrapper (primary - confirmed working)
     job_cards = soup.select('div.srp-jobtuple-wrapper')
     if job_cards:
-        print(f'Found {len(job_cards)} jobs using div.srp-jobtuple-wrapper')
         return job_cards
     
     # Strategy 2: Try article.jobTuple (legacy/fallback)
     job_cards = soup.select('article.jobTuple')
     if job_cards:
-        print(f'Found {len(job_cards)} jobs using article.jobTuple')
         return job_cards
     
     # Strategy 3: Try any div with "tuple" in class
     job_cards = soup.select('div[class*="tuple"]')
     if job_cards and len(job_cards) > 5:
-        print(f'Found {len(job_cards)} jobs using div[class*="tuple"]')
         return job_cards
     
-    print('⚠ No job cards found with any selector')
     return []
 
 
@@ -135,7 +131,6 @@ def extract_job_details(job_card: Any, base_url: str) -> Optional[Dict[str, Any]
         
         # If we don't have at least a title, return None
         if not title:
-            print(f'⚠ Skipping job card: no title found')
             return None
         
         # Extract job ID
