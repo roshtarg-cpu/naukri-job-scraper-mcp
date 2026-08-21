@@ -39,6 +39,9 @@ COPY requirements.txt ./
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Fetch Camoufox browser (must be done during build, not runtime)
+RUN python -m camoufox fetch
+
 # Copy actor source code
 COPY . ./
 
