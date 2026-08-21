@@ -17,10 +17,30 @@ def parse_job_listings(html_content: str) -> List[Any]:
     """
     soup = BeautifulSoup(html_content, 'lxml')
     
-    # Naukri.com uses various selectors for job cards
-    job_cards = soup.select('article.jobTuple') or soup.select('.jobTuple') or soup.select('div[class*="jobTuple"]')
+    # Try multiple selector strategies for Naukri.com job cards
+    job_cards = []
     
-    return job_cards
+    # Strategy 1: article.jobTuple (primary selector)
+    job_cards = soup.select('article.jobTuple')
+    if job_cards:
+        return job_cards
+    
+    # Strategy 2: Try article tags with class containing 'job' or 'tuple'
+    job_cards = soup.select('article[class*="job"]') or soup.select('article[class*="tuple"]')
+    if job_cards:
+        return job_cards
+    
+    # Strategy 3: Try div containers with job-related classes
+    job_cards = soup.select('div.srp-jobtuple-wrapper article') or soup.select('div.jobTuple')
+    if job_cards:
+        return job_cards
+    
+    # Strategy 4: Look for any article tags (last resort)
+    job_cards = soup.select('article')
+    if job_cards and len(job_cards) > 5:  # Only if we find multiple (likely job listings)
+        return job_cards
+    
+    return []
 
 
 def _clean_text(text: Optional[str]) -> Optional[str]:

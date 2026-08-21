@@ -67,18 +67,11 @@ async def fetch_jobs_page(url: str, proxy_url: Optional[str] = None, max_retries
                 # Set realistic viewport
                 await page.set_viewport_size({'width': 1920, 'height': 1080})
                 
-                # Navigate to the URL with timeout
-                await page.goto(url, wait_until='domcontentloaded', timeout=30000)
+                # Navigate to the URL with network idle to ensure full load
+                await page.goto(url, wait_until='networkidle', timeout=60000)
                 
-                # Wait for job listings to load
-                try:
-                    await page.wait_for_selector('.jobTuple, article.jobTuple', timeout=10000)
-                except Exception:
-                    # If selector not found, continue anyway - page might have loaded differently
-                    pass
-                
-                # Additional wait for dynamic content
-                await asyncio.sleep(2)
+                # Additional wait for dynamic content to render
+                await asyncio.sleep(5)
                 
                 # Get page content
                 content = await page.content()
