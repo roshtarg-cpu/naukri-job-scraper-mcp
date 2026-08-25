@@ -114,12 +114,23 @@ def extract_job_details(job_card: Any, base_url: str) -> Optional[Dict[str, Any]
     try:
         # Extract job title - try multiple selectors
         title_elem = (
-            job_card.select_one('.title') or
-            job_card.select_one('a.title') or 
-            job_card.select_one('[class*="title"]') or
+            job_card.select_one('a.title') or
+            job_card.select_one('.title a') or
+            job_card.select_one('[class*="jobTitle"] a') or
             job_card.select_one('h2 a') or
-            job_card.select_one('a')  # First link as fallback
+            job_card.select_one('h3 a') or
+            job_card.select_one('.title') or
+            job_card.select_one('[class*="title"]')
         )
+        
+        # If no title elem found, try first link in card that looks like a job link
+        if not title_elem:
+            for link in job_card.select('a'):
+                href = link.get('href', '')
+                if 'job-listings' in href or 'jd' in href:
+                    title_elem = link
+                    break
+        
         title = _clean_text(title_elem.get_text()) if title_elem else None
         
         # Extract job URL
@@ -129,8 +140,9 @@ def extract_job_details(job_card: Any, base_url: str) -> Optional[Dict[str, Any]
             href = link_elem['href']
             job_url = href if href.startswith('http') else f'{base_url}{href}'
         
-        # If we don't have at least a title, return None
+        # If we don't have at least a title, skip this card
         if not title:
+            print(f'⚠ Skipping job card: no title found')
             return None
         
         # Extract job ID
