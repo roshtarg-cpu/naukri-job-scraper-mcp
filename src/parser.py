@@ -30,8 +30,16 @@ def parse_job_listings(html_content: str) -> List[Any]:
     if job_cards:
         return job_cards
     
-    # Strategy 3: Try any div with "tuple" in class
-    job_cards = soup.select('div[class*="tuple"]')
+    # Strategy 3: Try any div with "tuple" in class BUT exclude shimmer/loading placeholders
+    all_tuples = soup.select('div[class*="tuple"]')
+    job_cards = []
+    for card in all_tuples:
+        classes = ' '.join(card.get('class', []))
+        # Skip loading placeholders/skeletons
+        if 'shimmer' in classes.lower() or 'skeleton' in classes.lower() or 'loader' in classes.lower():
+            continue
+        job_cards.append(card)
+    
     if job_cards and len(job_cards) > 5:
         return job_cards
     
