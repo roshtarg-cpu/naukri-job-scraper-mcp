@@ -80,5 +80,31 @@
         "template": "{{{scrapedAt}}}"
       }
     }
+  },
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "fields": {},
+      "views": {
+        "overview": {
+          "title": "Results",
+          "transformation": {
+            "fields": [
+              "jobId",
+              "title",
+              "companyName",
+              "salary",
+              "experienceMin",
+              "experienceMax",
+              "location",
+              "skills",
+              "jobDescription",
+              "jobUrl",
+              "scrapedAt"
+            ]
+          }
+        }
+      }
+    }
   }
 }
