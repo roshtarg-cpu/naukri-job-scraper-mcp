@@ -112,22 +112,43 @@ def extract_job_details(job_card: Any, base_url: str) -> Optional[Dict[str, Any]
         Dictionary containing job details or None if extraction failed
     """
     try:
+        # DEBUG: Print first card's HTML structure to understand what we're parsing
+        if not hasattr(extract_job_details, '_debug_printed'):
+            from apify import Actor
+            Actor.log.info(f"DEBUG: First job card classes: {job_card.get('class')}")
+            Actor.log.info(f"DEBUG: First job card HTML sample (first 500 chars):")
+            Actor.log.info(str(job_card)[:500])
+            extract_job_details._debug_printed = True
+        
         # Extract job title - try multiple selectors
         title_elem = (
             job_card.select_one('a.title') or
             job_card.select_one('.title a') or
             job_card.select_one('[class*="jobTitle"] a') or
+            job_card.select_one('[class*="title"] a') or
             job_card.select_one('h2 a') or
             job_card.select_one('h3 a') or
+            job_card.select_one('h4 a') or
             job_card.select_one('.title') or
-            job_card.select_one('[class*="title"]')
+            job_card.select_one('[class*="title"]') or
+            job_card.select_one('a[class*="job"]')
         )
         
         # If no title elem found, try first link in card that looks like a job link
         if not title_elem:
             for link in job_card.select('a'):
                 href = link.get('href', '')
-                if 'job-listings' in href or 'jd' in href:
+                text = link.get_text(strip=True)
+                # Job links usually have meaningful text (>10 chars) and specific href patterns
+                if text and len(text) > 10 and ('job-listings' in href or 'jd' in href or '/job/' in href):
+                    title_elem = link
+                    break
+        
+        # If STILL no title, try ANY link with substantial text
+        if not title_elem:
+            for link in job_card.select('a'):
+                text = link.get_text(strip=True)
+                if text and len(text) > 15:  # At least 15 chars suggests it's a job title
                     title_elem = link
                     break
         
